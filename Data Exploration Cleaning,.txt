@@ -1,0 +1,95 @@
+-- 📊 Data Exploration & Cleaning – Urban Noise Analytics
+
+-- 1. Total Records in Each Table
+SELECT 'sensors' AS table_name, COUNT(*) AS total_records FROM sensors
+UNION ALL
+SELECT 'events', COUNT(*) FROM events
+UNION ALL
+SELECT 'noise_readings', COUNT(*) FROM noise_readings;
+
+
+-- 2. Time Range of Noise Readings
+SELECT 
+    MIN(recorded_at) AS earliest_reading,
+    MAX(recorded_at) AS latest_reading
+FROM noise_readings;
+
+
+-- 3. Number of Sensors per Area
+SELECT 
+    area_name, 
+    COUNT(*) AS sensor_count
+FROM sensors
+GROUP BY area_name
+ORDER BY sensor_count DESC;
+
+
+-- 4. Number of Events per Area and Event Type
+SELECT 
+    area_name,
+    event_type,
+    COUNT(*) AS total_events
+FROM events
+GROUP BY area_name, event_type
+ORDER BY total_events DESC;
+
+
+-- 5. Readings Per Sensor
+SELECT 
+    sensor_id, 
+    COUNT(*) AS total_readings,
+    ROUND(AVG(decibel_level), 2) AS avg_decibel
+FROM noise_readings
+GROUP BY sensor_id
+ORDER BY total_readings DESC;
+
+
+-- 6. Sensors Without Readings
+SELECT s.sensor_id
+FROM sensors s
+LEFT JOIN noise_readings n ON s.sensor_id = n.sensor_id
+WHERE n.sensor_id IS NULL;
+
+
+-- 7. NULL Value Check in Noise Readings
+SELECT 
+    COUNT(*) AS total_rows,
+    SUM(sensor_id IS NULL) AS null_sensor_id,
+    SUM(decibel_level IS NULL) AS null_decibel,
+    SUM(recorded_at IS NULL) AS null_timestamp,
+    SUM(event_id IS NULL) AS null_event_id
+FROM noise_readings;
+
+
+-- 8. Check for Outliers in Decibel Levels
+SELECT 
+    MIN(decibel_level) AS min_db,
+    MAX(decibel_level) AS max_db,
+    AVG(decibel_level) AS avg_db
+FROM noise_readings;
+
+
+-- 9. Identify Suspicious Readings (<30 or >130 dB)
+SELECT *
+FROM noise_readings
+WHERE decibel_level < 30 OR decibel_level > 130;
+
+
+-- 10. Orphan Records: Missing Sensor/Event References
+-- a) Readings referencing missing sensors
+SELECT *
+FROM noise_readings nr
+LEFT JOIN sensors s ON nr.sensor_id = s.sensor_id
+WHERE s.sensor_id IS NULL;
+
+-- b) Readings referencing missing events
+SELECT *
+FROM noise_readings nr
+LEFT JOIN events e ON nr.event_id = e.event_id
+WHERE nr.event_id IS NOT NULL AND e.event_id IS NULL;
+
+
+-- 11. Future Dated Readings
+SELECT *
+FROM noise_readings
+WHERE recorded_at > NOW();
