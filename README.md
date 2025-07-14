@@ -74,7 +74,7 @@ Conducted structured data exploration, null audits, outlier detection, and refer
 
 ## 📤 Sample Query Outputs
 
-All major queries are attached as `.txt` files (Notepad) in the `outputs/` folder. These are ideal for Showcasing results.
+All major queries are attached as `.txt` files (Notepad) and Word documents files which has screenshots of the MYSQL workbench output in the `outputs/` folder. These are ideal for Showcasing results.
 File name:
 1) Data Exploration Cleaning
 2) Business_insights
